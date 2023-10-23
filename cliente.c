@@ -9,64 +9,76 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include "constantes.h"
+#include "particionaArquivo.h"
 
 main(int argc, char *argv[])
 
 {
-    int sockdescr;
-    int numbytesrecv;
-    struct sockaddr_in sa;
-    struct hostent *hp;
-    char buf[BUFSIZ + 1];
-    char *host;
-    char *dados;
+	int sockdescr;
+	int numbytesrecv;
+	struct sockaddr_in sa;
+	struct hostent *hp;
+	char buf[BUFSIZ + 1];
+	char buffer[BUFFER_SIZE];
+	char *host;
+	char *dados;
 
-    unsigned int i;
+	unsigned int i;
 
-    if (argc != 4)
-    {
-        puts("Uso correto: <cliente> <nome-servidor> <porta> <dados>");
-        exit(1);
-    }
+	if (argc != 4)
+	{
+		puts("Uso correto: <cliente> <nome-servidor> <porta> <dados>");
+		exit(1);
+	}
 
-    host = argv[1];
-    dados = argv[3];
+	host = argv[1];
+	dados = argv[3];
 
-    if ((hp = gethostbyname(host)) == NULL)
-    {
-        puts("Nao consegui obter endereco IP do servidor.");
-        exit(1);
-    }
+	if ((hp = gethostbyname(host)) == NULL)
+	{
+		puts("Nao consegui obter endereco IP do servidor.");
+		exit(1);
+	}
 
-    bcopy((char *)hp->h_addr, (char *)&sa.sin_addr, hp->h_length);
-    sa.sin_family = hp->h_addrtype;
+	bcopy((char *)hp->h_addr, (char *)&sa.sin_addr, hp->h_length);
+	sa.sin_family = hp->h_addrtype;
 
-    sa.sin_port = htons(atoi(argv[2]));
+	sa.sin_port = htons(atoi(argv[2]));
 
-    if ((sockdescr = socket(hp->h_addrtype, SOCK_DGRAM, 0)) < 0)
-    {
-        puts("Nao consegui abrir o socket.");
-        exit(1);
-    }
+	if ((sockdescr = socket(hp->h_addrtype, SOCK_DGRAM, 0)) < 0)
+	{
+		puts("Nao consegui abrir o socket.");
+		exit(1);
+	}
 
-    if (sendto(sockdescr, dados, strlen(dados) + 1, 0, (struct sockaddr *)&sa, sizeof sa) != strlen(dados) + 1)
-    {
-        puts("Nao consegui mandar os dados");
-        exit(1);
-    }
-    int count = 0;
-    /* end while }*/
-    while (1)
-    {
-        if (recvfrom(sockdescr, buf, BUFSIZ, 0, (struct sockaddr *)&sa, &i))
-        {
-            count++;
-            printf("Sou o cliente, recebi: %s\n", buf);
-            if (count % 5 == 0)
-                sendto(sockdescr, dados, strlen(dados) + 1, 0, (struct sockaddr *)&sa, sizeof sa);
-        }
-    }
+	if (sendto(sockdescr, dados, strlen(dados) + 1, 0, (struct sockaddr *)&sa, sizeof sa) != strlen(dados) + 1)
+	{
+		puts("Nao consegui mandar os dados");
+		exit(1);
+	}
+	int count = 0;
+	/* end while }*/
+	FILE *arq = abre_arquivo_escrita("outroBolo.png");
 
-    close(sockdescr);
-    exit(0);
+	while (1)
+	{
+		if (recvfrom(sockdescr, buffer, BUFSIZ, 0, (struct sockaddr *)&sa, &i))
+		{
+			if (strcmp(buffer, "fim") != 0)
+			{
+				fwrite(buffer, 1, BUFFER_SIZE, arq);
+			}
+			else
+				break;
+		}
+		else
+		{
+			puts("Nao consegui receber os dados");
+			exit(1);
+		}
+	}
+
+	close(sockdescr);
+	exit(0);
 }

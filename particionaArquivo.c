@@ -1,7 +1,4 @@
 #include "particionaArquivo.h"
-#include "constantes.h"
-
-// 1k * 100k = 100M <- Tamanho máximo do arquivo
 
 size_t retorna_parte(FILE *arquivo, int parte, unsigned char *buffer)
 {
@@ -13,10 +10,23 @@ size_t retorna_parte(FILE *arquivo, int parte, unsigned char *buffer)
         return 0;
 }
 
-FILE *abre_arquivoRB(const char *nome_arquivo)
+FILE *abre_arquivo_leitura(const char *nome_arquivo)
 {
     FILE *arquivo;
     arquivo=fopen(nome_arquivo, "rb");
+    if(!arquivo)
+    {
+        perror("Erro ao abrir o arquivo");
+        exit(1);
+    }
+    else
+        return arquivo;
+}
+
+FILE *abre_arquivo_escrita(const char *nome_arquivo)
+{
+    FILE *arquivo;
+    arquivo=fopen(nome_arquivo, "wb");
     if(!arquivo)
     {
         perror("Erro ao abrir o arquivo");

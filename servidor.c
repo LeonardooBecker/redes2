@@ -10,6 +10,8 @@
 #include <string.h>
 #include <time.h>
 #include "fila.h"
+#include "particionaArquivo.h"
+#include "constantes.h"
 
 #define TAMFILA 5
 #define MAXHOSTNAME 30
@@ -57,6 +59,7 @@ main(int argc, char *argv[])
     }
 
     char str[sizeof(isa)];
+	unsigned char buffer[BUFFER_SIZE];
     while (1)
     {
         i = sizeof(isa);
@@ -66,13 +69,18 @@ main(int argc, char *argv[])
             inet_ntop(AF_INET, &(sa.sin_addr), str, i);
             printf("%s\n", str);
             printf("Sou o servidor, recebi a mensagem----> %s\n", buf);
-            for (int j = 0; j < 10; j++)
+            FILE *arq=abre_arquivo_leitura("cake.png");
+			for (int j = 0; j < MAX_PARTS; j++)
             {
-                char ns[BUFSIZ * 2];
-                sprintf(ns, "%s - %d", buf, j);
-                sendto(s, ns, BUFSIZ, 0, (struct sockaddr *)&isa, i);
+                char ns[BUFFER_SIZE];
+                sprintf(ns, "%d", j);
+				if(retorna_parte(arq, j, buffer)>0)
+                	sendto(s, buffer, BUFSIZ, 0, (struct sockaddr *)&isa, i);
+				else
+					break;
             }
-            sendto(s, "fim mensagem", BUFSIZ, 0, (struct sockaddr *)&isa, i);
+            for(int j=0;j<10;j++)
+                sendto(s, "fim", BUFSIZ, 0, (struct sockaddr *)&isa, i);
         }
     }
 }
