@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include "fila.h"
 
 #define TAMFILA 5
 #define MAXHOSTNAME 30
