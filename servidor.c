@@ -26,6 +26,7 @@ main(int argc, char *argv[])
     struct hostent *hp;
     char localhost[MAXHOSTNAME];
 
+
     if (argc != 2)
     {
         puts("Uso correto: servidor <porta>");
@@ -60,27 +61,32 @@ main(int argc, char *argv[])
 
     char str[sizeof(isa)];
 	unsigned char buffer[BUFFER_SIZE];
+    
     while (1)
     {
         i = sizeof(isa);
+
         puts("Vou bloquear esperando mensagem.");
+
         if (recvfrom(s, buf, BUFSIZ, 0, (struct sockaddr *)&isa, &i))
         {
             inet_ntop(AF_INET, &(sa.sin_addr), str, i);
             printf("%s\n", str);
-            printf("Sou o servidor, recebi a mensagem----> %s\n", buf);
+
             FILE *arq=abre_arquivo_leitura("cake.png");
+
 			for (int j = 0; j < MAX_PARTS; j++)
             {
-                char ns[BUFFER_SIZE];
-                sprintf(ns, "%d", j);
 				if(retorna_parte(arq, j, buffer)>0)
+                {
+                    char ns[BUFFER_SIZE];
+                    sprintf(ns, "%d", j);
                 	sendto(s, buffer, BUFSIZ, 0, (struct sockaddr *)&isa, i);
+                }
 				else
 					break;
+                usleep(70000);
             }
-            for(int j=0;j<10;j++)
-                sendto(s, "fim", BUFSIZ, 0, (struct sockaddr *)&isa, i);
         }
     }
 }

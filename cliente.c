@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <netinet/in.h>
 #include <netdb.h>
 #include <stdlib.h>
@@ -61,21 +62,35 @@ main(int argc, char *argv[])
 	/* end while }*/
 	FILE *arq = abre_arquivo_escrita("outroBolo.png");
 
+	fd_set readfds;
+	struct timeval timeout;
+	int retval;
+
 	while (1)
 	{
-		if (recvfrom(sockdescr, buffer, BUFSIZ, 0, (struct sockaddr *)&sa, &i))
+		i = sizeof(sa);
+		FD_ZERO(&readfds);
+		FD_SET(sockdescr, &readfds);
+
+		timeout.tv_sec = 5;	 // Defina o timeout em segundos
+		timeout.tv_usec = 0; // Defina os microssegundos do timeout
+
+		retval = select(sockdescr + 1, &readfds, NULL, NULL, &timeout);
+
+		if (retval == -1)
 		{
-			if (strcmp(buffer, "fim") != 0)
-			{
-				fwrite(buffer, 1, BUFFER_SIZE, arq);
-			}
-			else
-				break;
+			perror("Erro na função select");
+		}
+		else if (retval == 0)
+		{
+			printf("Timeout! Nenhum dado recebido.\n");
+			break;
 		}
 		else
 		{
-			puts("Nao consegui receber os dados");
-			exit(1);
+			ssize_t bytes_received = recvfrom(sockdescr, buffer, BUFFER_SIZE, 0, (struct sockaddr *)&sa, &i);
+			printf("Recebido %s\n", buffer);
+			fwrite(buffer, sizeof(char), bytes_received, arq);
 		}
 	}
 
