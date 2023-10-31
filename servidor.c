@@ -44,6 +44,8 @@ int main(int argc, char *argv[])
 
     sa.sin_port = htons(atoi(argv[1]));
 
+    printf("Sou o Servidor\nNome: %s, Porta: %d\n", localhost, atoi(argv[1]));
+
     bcopy((char *)hp->h_addr, (char *)&sa.sin_addr, hp->h_length);
 
     sa.sin_family = hp->h_addrtype;
@@ -66,7 +68,6 @@ int main(int argc, char *argv[])
     int vetor_portas[10];
     int vetor_endereço[10];
     int posicao_vetor = 0;
-
     FILE *arq = abre_arquivo_leitura("cake.png");
 
     fd_set readfds;
@@ -82,6 +83,7 @@ int main(int argc, char *argv[])
     timeout.tv_usec = 0;              // Defina os microssegundos do timeout
 
     int pacoteAtual = 0;
+
     while (1)
     {
         i = sizeof(isa);
@@ -108,13 +110,14 @@ int main(int argc, char *argv[])
 
             if (retorna_parte(arq, pacoteAtual, buffer) > 0)
             {
-                isa.sin_family = AF_INET;
-                isa.sin_port = htons(vetor_portas[posicao_vetor]);
-                isa.sin_addr.s_addr = vetor_endereço[posicao_vetor];
-                char ns[BUFFER_SIZE];
-                sprintf(ns, "%d", pacoteAtual);
-                sendto(s, buffer, BUFSIZ, 0, (struct sockaddr *)&isa, i);
-                printf("Enviando parte %s\n", ns);
+                for (int k = 0; k < posicao_vetor; k++)
+                {
+                    isa.sin_family = AF_INET;
+                    isa.sin_port = htons(vetor_portas[k]);
+                    isa.sin_addr.s_addr = vetor_endereço[k];
+                    sendto(s, buffer, BUFSIZ, 0, (struct sockaddr *)&isa, i);
+                }
+                printf("Enviando parte %d\n", pacoteAtual);
                 pacoteAtual++;
             }
             else
@@ -130,8 +133,7 @@ int main(int argc, char *argv[])
                 int porta = ntohs(isa.sin_port);
                 vetor_portas[posicao_vetor] = porta;
                 vetor_endereço[posicao_vetor] = inet_addr(str);
-                printf("%s\n", str);
-                printf("%d\n", porta);
+                posicao_vetor++;
                 printf("Endereço: %s:%d\n", str, porta);
             }
         }
