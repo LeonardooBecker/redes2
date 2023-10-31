@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
     int vetor_portas[10];
     int vetor_endereço[10];
     int posicao_vetor = 0;
-    FILE *arq = abre_arquivo_leitura("cake.png");
+    FILE *arq = abre_arquivo_leitura("shrek3.txt");
 
     fd_set readfds;
     struct timeval timeout;

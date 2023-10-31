@@ -9,11 +9,17 @@
 
 typedef struct datagrama
 {
-    unsigned int porta_origem : 16;
-    unsigned int porta_destino : 16;
     unsigned int tamanho : 16;
     unsigned int sequencia : 16;
     unsigned char dados[BUFFER_SIZE];
 } datagramaUDP;
+
+typedef struct clientes
+{
+    unsigned char stream_cliente[BUFFER_SIZE];
+    unsigned int parte;
+    int host;
+    int address;
+}clientes_t;    
 
 #endif

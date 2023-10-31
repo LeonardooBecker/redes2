@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 	}
 	int count = 0;
 	/* end while }*/
-	FILE *arq = abre_arquivo_escrita("outroBolo.png");
+	FILE *arq = abre_arquivo_escrita(dados);
 
 	fd_set readfds;
 	struct timeval timeout;
