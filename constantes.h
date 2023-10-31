@@ -1,12 +1,14 @@
 #ifndef __CONSTANTES_H__
 #define __CONSTANTES_H__
 
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE 2048
 #define MAX_PARTS 100000
+
+#define INTERVALO_TEMPO 1
 // 1k * 100k = 100M <- Tamanho máximo do arquivo
 
-
-typedef struct datagrama{
+typedef struct datagrama
+{
     unsigned int porta_origem : 16;
     unsigned int porta_destino : 16;
     unsigned int tamanho : 16;

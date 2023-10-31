@@ -63,8 +63,11 @@ int main(int argc, char *argv[])
     char str[sizeof(isa)];
     unsigned char buffer[BUFFER_SIZE];
 
-    int vetor[10];
+    int vetor_portas[10];
+    int vetor_endereço[10];
     int posicao_vetor = 0;
+
+    FILE *arq = abre_arquivo_leitura("cake.png");
 
     fd_set readfds;
     struct timeval timeout;
@@ -75,64 +78,62 @@ int main(int argc, char *argv[])
     FD_ZERO(&readfds);
     FD_SET(s, &readfds);
 
-    timeout.tv_sec = 5;  // Defina o timeout em segundos
-    timeout.tv_usec = 0; // Defina os microssegundos do timeout
+    timeout.tv_sec = INTERVALO_TEMPO; // Defina o timeout em segundos
+    timeout.tv_usec = 0;              // Defina os microssegundos do timeout
 
+    int pacoteAtual = 0;
     while (1)
     {
         i = sizeof(isa);
 
-        puts("Vou bloquear esperando mensagem.");
+        // puts("Vou bloquear esperando mensagem.");
 
         retval = select(s + 1, &readfds, NULL, NULL, &timeout);
 
+        // Amamos quando retval não da errado
         if (retval == -1)
         {
             perror("Erro na função select");
         }
+
+        // Seria o caso do timeout, mas como não estamos trabalhando com timeout no servidor, em todos os momentos de "timeout" ele envia o pacote para o cliente
         else if (retval == 0)
         {
-            printf("Timeout! Nenhum dado recebido.\n");
+            // printf("Timeout! Nenhum dado recebido.\n");
 
             FD_ZERO(&readfds);
             FD_SET(s, &readfds);
+            timeout.tv_sec = INTERVALO_TEMPO; // Defina o timeout em segundos
+            timeout.tv_usec = 0;              // Defina os microssegundos do timeout
 
-            timeout.tv_sec = 5;  // Defina o timeout em segundos
-            timeout.tv_usec = 0; // Defina os microssegundos do timeout
-
-            // timeout.tv_sec = 5;
-            // printf("%ld",timeout.tv_sec);
+            if (retorna_parte(arq, pacoteAtual, buffer) > 0)
+            {
+                isa.sin_family = AF_INET;
+                isa.sin_port = htons(vetor_portas[posicao_vetor]);
+                isa.sin_addr.s_addr = vetor_endereço[posicao_vetor];
+                char ns[BUFFER_SIZE];
+                sprintf(ns, "%d", pacoteAtual);
+                sendto(s, buffer, BUFSIZ, 0, (struct sockaddr *)&isa, i);
+                printf("Enviando parte %s\n", ns);
+                pacoteAtual++;
+            }
+            else
+                pacoteAtual = 0;
         }
+
+        // Caso esteja fora do timeout, ele busca por novas conexões de clientes.
         else
         {
             if (recvfrom(s, buf, BUFSIZ, 0, (struct sockaddr *)&isa, &i))
             {
                 inet_ntop(AF_INET, &(isa.sin_addr), str, i);
                 int porta = ntohs(isa.sin_port);
-                vetor[posicao_vetor] = porta;
+                vetor_portas[posicao_vetor] = porta;
+                vetor_endereço[posicao_vetor] = inet_addr(str);
                 printf("%s\n", str);
                 printf("%d\n", porta);
-
                 printf("Endereço: %s:%d\n", str, porta);
-
-                FILE *arq = abre_arquivo_leitura("cake.png");
-
-                for (int j = 0; j < MAX_PARTS; j++)
-                {
-                    if (retorna_parte(arq, j, buffer) > 0)
-                    {
-                        char ns[BUFFER_SIZE];
-                        sprintf(ns, "%d", j);
-                        sendto(s, buffer, BUFSIZ, 0, (struct sockaddr *)&isa, i);
-                        printf("Enviando parte %s\n", ns);
-                    }
-                    else
-                        break;
-                    usleep(70000);
-                }
             }
-            else
-                printf("OIIII\nOIIII\nOIIIII");
         }
     }
 }

@@ -6,14 +6,16 @@
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <netdb.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 #include <time.h>
 #include "constantes.h"
 #include "particionaArquivo.h"
 
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 
 {
 	int sockdescr;
@@ -76,7 +78,6 @@ main(int argc, char *argv[])
 	{
 
 		retval = select(sockdescr + 1, &readfds, NULL, NULL, &timeout);
-
 		if (retval == -1)
 		{
 			perror("Erro na função select");
@@ -89,9 +90,17 @@ main(int argc, char *argv[])
 		else
 		{
 			ssize_t bytes_received = recvfrom(sockdescr, buffer, BUFFER_SIZE, 0, (struct sockaddr *)&sa, &i);
-			printf("Recebido %s\n", buffer);
-			fwrite(buffer, sizeof(char), bytes_received, arq);
-			// sleep(3);
+			if (bytes_received > 0)
+			{
+				printf("Recebido %s\n", buffer);
+				fwrite(buffer, sizeof(char), bytes_received, arq);
+			}
+			FD_ZERO(&readfds);
+			FD_SET(sockdescr, &readfds);
+
+			timeout.tv_sec = 5;	 // Defina o timeout em segundos
+			timeout.tv_usec = 0; // Defina os microssegundos do timeout
+								 // sleep(3);
 		}
 	}
 
