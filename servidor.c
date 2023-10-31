@@ -27,6 +27,8 @@ int main(int argc, char *argv[])
     struct sockaddr_in sa, isa; /* sa: servidor, isa: cliente */
     struct hostent *hp;
     char localhost[MAXHOSTNAME];
+    clientes_t clientes[MAX_CLIENTES];
+    int id_cliente = 0;
 
     if (argc != 2)
     {
@@ -65,9 +67,6 @@ int main(int argc, char *argv[])
     char str[sizeof(isa)];
     unsigned char buffer[BUFFER_SIZE];
 
-    int vetor_portas[10];
-    int vetor_endereço[10];
-    int posicao_vetor = 0;
     FILE *arq = abre_arquivo_leitura("shrek3.txt");
 
     fd_set readfds;
@@ -108,20 +107,18 @@ int main(int argc, char *argv[])
             timeout.tv_sec = INTERVALO_TEMPO; // Defina o timeout em segundos
             timeout.tv_usec = 0;              // Defina os microssegundos do timeout
 
-            if (retorna_parte(arq, pacoteAtual, buffer) > 0)
+            for (int k = 0; k < id_cliente; k++)
             {
-                for (int k = 0; k < posicao_vetor; k++)
+                if (novoRetornaParte(clientes[k], buffer) > 0)
                 {
                     isa.sin_family = AF_INET;
-                    isa.sin_port = htons(vetor_portas[k]);
-                    isa.sin_addr.s_addr = vetor_endereço[k];
+                    isa.sin_port = clientes[k].host;
+                    isa.sin_addr.s_addr = clientes[k].address;
                     sendto(s, buffer, BUFSIZ, 0, (struct sockaddr *)&isa, i);
+                    printf("Enviando parte %d\n", clientes[k].parte);
+                    clientes[k].parte++;
                 }
-                printf("Enviando parte %d\n", pacoteAtual);
-                pacoteAtual++;
             }
-            else
-                pacoteAtual = 0;
         }
 
         // Caso esteja fora do timeout, ele busca por novas conexões de clientes.
@@ -130,11 +127,16 @@ int main(int argc, char *argv[])
             if (recvfrom(s, buf, BUFSIZ, 0, (struct sockaddr *)&isa, &i))
             {
                 inet_ntop(AF_INET, &(isa.sin_addr), str, i);
-                int porta = ntohs(isa.sin_port);
-                vetor_portas[posicao_vetor] = porta;
-                vetor_endereço[posicao_vetor] = inet_addr(str);
-                posicao_vetor++;
-                printf("Endereço: %s:%d\n", str, porta);
+                int host = isa.sin_port;
+                int addrs = inet_addr(str);
+                clientes[id_cliente].host = host;
+                clientes[id_cliente].address = addrs;
+                strcat(clientes[id_cliente].stream_cliente, buf);
+                clientes[id_cliente].parte = 0;
+                id_cliente++;
+
+                printf("Endereço: %s:%d\n", str, host);
+                printf("BUFFER: %s\n", buf);
             }
         }
     }

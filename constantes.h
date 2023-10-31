@@ -3,6 +3,7 @@
 
 #define BUFFER_SIZE 2048
 #define MAX_PARTS 100000
+#define MAX_CLIENTES 100
 
 #define INTERVALO_TEMPO 1
 // 1k * 100k = 100M <- Tamanho máximo do arquivo
@@ -16,10 +17,10 @@ typedef struct datagrama
 
 typedef struct clientes
 {
-    unsigned char stream_cliente[BUFFER_SIZE];
+    char stream_cliente[BUFFER_SIZE];
     unsigned int parte;
     int host;
     int address;
-}clientes_t;    
+} clientes_t;
 
 #endif
