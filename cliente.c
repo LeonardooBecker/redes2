@@ -66,14 +66,14 @@ main(int argc, char *argv[])
 	struct timeval timeout;
 	int retval;
 
+	i = sizeof(sa);
+	FD_ZERO(&readfds);
+	FD_SET(sockdescr, &readfds);
+
+	timeout.tv_sec = 5;	 // Defina o timeout em segundos
+	timeout.tv_usec = 0; // Defina os microssegundos do timeout
 	while (1)
 	{
-		i = sizeof(sa);
-		FD_ZERO(&readfds);
-		FD_SET(sockdescr, &readfds);
-
-		timeout.tv_sec = 5;	 // Defina o timeout em segundos
-		timeout.tv_usec = 0; // Defina os microssegundos do timeout
 
 		retval = select(sockdescr + 1, &readfds, NULL, NULL, &timeout);
 
@@ -91,6 +91,7 @@ main(int argc, char *argv[])
 			ssize_t bytes_received = recvfrom(sockdescr, buffer, BUFFER_SIZE, 0, (struct sockaddr *)&sa, &i);
 			printf("Recebido %s\n", buffer);
 			fwrite(buffer, sizeof(char), bytes_received, arq);
+			// sleep(3);
 		}
 	}
 
