@@ -28,6 +28,7 @@ int main(int argc, char *argv[])
     struct hostent *hp;
     char localhost[MAXHOSTNAME];
     clientes_t clientes[MAX_CLIENTES];
+    datagramaUDP pacote;
     int id_cliente = 0;
 
     if (argc != 2)
@@ -65,7 +66,6 @@ int main(int argc, char *argv[])
     }
 
     char str[sizeof(isa)];
-    unsigned char buffer[BUFFER_SIZE];
 
     fd_set readfds;
     struct timeval timeout;
@@ -105,12 +105,12 @@ int main(int argc, char *argv[])
 
             for (int k = 0; k < id_cliente; k++)
             {
-                if (novoRetornaParte(clientes[k], buffer) > 0)
+                if (novoRetornaParte(clientes[k], &pacote) > 0)
                 {
                     isa.sin_family = AF_INET;
                     isa.sin_port = clientes[k].host;
                     isa.sin_addr.s_addr = clientes[k].address;
-                    sendto(s, buffer, BUFSIZ, 0, (struct sockaddr *)&isa, i);
+                    sendto(s, pacote.dados, pacote.tamanho, 0, (struct sockaddr *)&isa, i);
                     printf("Enviando parte %d\n", clientes[k].parte);
                     clientes[k].parte++;
                 }

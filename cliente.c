@@ -99,6 +99,7 @@ int main(int argc, char *argv[])
 			{
 				printf("Recebido %s\n", buffer);
 				fwrite(buffer, sizeof(char), bytes_received, arq);
+				memset(buffer, 0, BUFFER_SIZE);
 				bytes_received = 0;
 			}
 		}

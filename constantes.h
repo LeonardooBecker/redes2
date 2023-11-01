@@ -6,7 +6,7 @@
 #define MAX_CLIENTES 100
 
 #define SEGUNDOS_ESPERA 0
-#define MS_ESPERA 800
+#define MS_ESPERA 300
 // 1k * 100k = 100M <- Tamanho máximo do arquivo
 
 typedef struct datagrama
