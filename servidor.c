@@ -67,8 +67,6 @@ int main(int argc, char *argv[])
     char str[sizeof(isa)];
     unsigned char buffer[BUFFER_SIZE];
 
-    FILE *arq = abre_arquivo_leitura("shrek3.txt");
-
     fd_set readfds;
     struct timeval timeout;
     int retval;
@@ -78,10 +76,8 @@ int main(int argc, char *argv[])
     FD_ZERO(&readfds);
     FD_SET(s, &readfds);
 
-    timeout.tv_sec = INTERVALO_TEMPO; // Defina o timeout em segundos
-    timeout.tv_usec = 0;              // Defina os microssegundos do timeout
-
-    int pacoteAtual = 0;
+    timeout.tv_sec = SEGUNDOS_ESPERA; // Defina o timeout em segundos
+    timeout.tv_usec = MS_ESPERA;      // Defina os microssegundos do timeout
 
     while (1)
     {
@@ -104,8 +100,8 @@ int main(int argc, char *argv[])
 
             FD_ZERO(&readfds);
             FD_SET(s, &readfds);
-            timeout.tv_sec = INTERVALO_TEMPO; // Defina o timeout em segundos
-            timeout.tv_usec = 0;              // Defina os microssegundos do timeout
+            timeout.tv_sec = SEGUNDOS_ESPERA; // Defina o timeout em segundos
+            timeout.tv_usec = MS_ESPERA;      // Defina os microssegundos do timeout
 
             for (int k = 0; k < id_cliente; k++)
             {
@@ -133,6 +129,7 @@ int main(int argc, char *argv[])
                 clientes[id_cliente].address = addrs;
                 strcat(clientes[id_cliente].stream_cliente, buf);
                 clientes[id_cliente].parte = 0;
+                clientes[id_cliente].arquivo_cliente = abre_arquivo_leitura(buf);
                 id_cliente++;
 
                 printf("Endereço: %s:%d\n", str, host);

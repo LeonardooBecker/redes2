@@ -12,14 +12,14 @@ size_t retorna_parte(FILE *arquivo, int parte, unsigned char *buffer)
 
 size_t novoRetornaParte(clientes_t cliente, unsigned char *buffer)
 {
-    FILE *arq = abre_arquivo_leitura(cliente.stream_cliente);
+    // FILE *arq = abre_arquivo_leitura(cliente.stream_cliente);
     size_t bytes_read;
-    fseek(arq, (cliente.parte * BUFFER_SIZE), SEEK_SET);
-    if ((bytes_read = fread(buffer, 1, BUFFER_SIZE, arq)) > 0)
+    fseek(cliente.arquivo_cliente, (cliente.parte * BUFFER_SIZE), SEEK_SET);
+    if ((bytes_read = fread(buffer, 1, BUFFER_SIZE, cliente.arquivo_cliente)) > 0)
         return bytes_read;
     else
         return 0;
-    fclose(arq);
+    // fclose(arq);
 }
 
 FILE *abre_arquivo_leitura(const char *nome_arquivo)

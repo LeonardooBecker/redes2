@@ -1,11 +1,12 @@
 #ifndef __CONSTANTES_H__
 #define __CONSTANTES_H__
 
-#define BUFFER_SIZE 2048
+#define BUFFER_SIZE 1024
 #define MAX_PARTS 100000
 #define MAX_CLIENTES 100
 
-#define INTERVALO_TEMPO 1
+#define SEGUNDOS_ESPERA 0
+#define MS_ESPERA 800
 // 1k * 100k = 100M <- Tamanho máximo do arquivo
 
 typedef struct datagrama
@@ -21,6 +22,7 @@ typedef struct clientes
     unsigned int parte;
     int host;
     int address;
+    FILE *arquivo_cliente;
 } clientes_t;
 
 #endif

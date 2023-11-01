@@ -19,10 +19,8 @@ int main(int argc, char *argv[])
 
 {
 	int sockdescr;
-	int numbytesrecv;
 	struct sockaddr_in sa;
 	struct hostent *hp;
-	char buf[BUFSIZ + 1];
 	char buffer[BUFFER_SIZE];
 	char *host;
 	char *dados;
@@ -60,9 +58,10 @@ int main(int argc, char *argv[])
 		puts("Nao consegui mandar os dados");
 		exit(1);
 	}
-	int count = 0;
-	/* end while }*/
-	FILE *arq = abre_arquivo_escrita("sexo.2");
+
+	char nome_arquivo[100];
+	sprintf(nome_arquivo, "retorno_%s", argv[3]);
+	FILE *arq = abre_arquivo_escrita(nome_arquivo);
 
 	fd_set readfds;
 	struct timeval timeout;
@@ -89,18 +88,19 @@ int main(int argc, char *argv[])
 		}
 		else
 		{
-			ssize_t bytes_received = recvfrom(sockdescr, buffer, BUFFER_SIZE, 0, (struct sockaddr *)&sa, &i);
-			if (bytes_received > 0)
-			{
-				printf("Recebido %s\n", buffer);
-				fwrite(buffer, sizeof(char), bytes_received, arq);
-			}
 			FD_ZERO(&readfds);
 			FD_SET(sockdescr, &readfds);
 
 			timeout.tv_sec = 5;	 // Defina o timeout em segundos
 			timeout.tv_usec = 0; // Defina os microssegundos do timeout
 								 // sleep(3);
+			ssize_t bytes_received = recvfrom(sockdescr, buffer, BUFFER_SIZE, 0, (struct sockaddr *)&sa, &i);
+			if (bytes_received > 0)
+			{
+				printf("Recebido %s\n", buffer);
+				fwrite(buffer, sizeof(char), bytes_received, arq);
+				bytes_received = 0;
+			}
 		}
 	}
 
