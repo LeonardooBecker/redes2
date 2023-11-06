@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 	int sockdescr;
 	struct sockaddr_in sa;
 	struct hostent *hp;
-	char buffer[BUFFER_SIZE];
+	datagramaUDP pacote;
 	char *host;
 	char *dados;
 
@@ -94,12 +94,11 @@ int main(int argc, char *argv[])
 			timeout.tv_sec = 5;	 // Defina o timeout em segundos
 			timeout.tv_usec = 0; // Defina os microssegundos do timeout
 								 // sleep(3);
-			ssize_t bytes_received = recvfrom(sockdescr, buffer, BUFFER_SIZE, 0, (struct sockaddr *)&sa, &i);
+			ssize_t bytes_received = recvfrom(sockdescr, &pacote, sizeof(pacote), 0, (struct sockaddr *)&sa, &i);
 			if (bytes_received > 0)
 			{
-				printf("Recebido %s\n", buffer);
-				fwrite(buffer, sizeof(char), bytes_received, arq);
-				memset(buffer, 0, BUFFER_SIZE);
+				printf("Recebido %s\n", pacote.dados);
+				fwrite(pacote.dados, sizeof(char), bytes_received, arq);
 				bytes_received = 0;
 			}
 		}

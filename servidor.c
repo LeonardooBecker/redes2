@@ -78,6 +78,7 @@ int main(int argc, char *argv[])
 
     timeout.tv_sec = SEGUNDOS_ESPERA; // Defina o timeout em segundos
     timeout.tv_usec = MS_ESPERA;      // Defina os microssegundos do timeout
+    // memset(pacote, 0, sizeof(pacote));
 
     while (1)
     {
@@ -107,11 +108,11 @@ int main(int argc, char *argv[])
             {
                 if (novoRetornaParte(clientes[k], &pacote) > 0)
                 {
+                    printf("Enviando parte %d\n", clientes[k].parte);
                     isa.sin_family = AF_INET;
                     isa.sin_port = clientes[k].host;
                     isa.sin_addr.s_addr = clientes[k].address;
-                    sendto(s, pacote.dados, pacote.tamanho, 0, (struct sockaddr *)&isa, i);
-                    printf("Enviando parte %d\n", clientes[k].parte);
+                    sendto(s, &pacote, pacote.tamanho, 0, (struct sockaddr *)&isa, i);
                     clientes[k].parte++;
                 }
             }
