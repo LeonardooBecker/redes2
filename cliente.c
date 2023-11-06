@@ -53,12 +53,6 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	if (sendto(sockdescr, dados, strlen(dados) + 1, 0, (struct sockaddr *)&sa, sizeof sa) != strlen(dados) + 1)
-	{
-		puts("Nao consegui mandar os dados");
-		exit(1);
-	}
-
 	char nome_arquivo[100];
 	sprintf(nome_arquivo, "retorno_%s", argv[3]);
 	FILE *arq = abre_arquivo_escrita(nome_arquivo);
@@ -71,8 +65,19 @@ int main(int argc, char *argv[])
 	FD_ZERO(&readfds);
 	FD_SET(sockdescr, &readfds);
 
-	timeout.tv_sec = 5;	 // Defina o timeout em segundos
-	timeout.tv_usec = 0; // Defina os microssegundos do timeout
+	timeout.tv_sec = SEGUNDOS_ESPERA_CLIENTE; // Defina o timeout em segundos
+	timeout.tv_usec = MS_ESPERA_CLIENTE;	  // Defina os microssegundos do timeout
+
+	sprintf(pacote.dados, "%s", nome_arquivo);
+	pacote.tamanho = sizeof(pacote.dados);
+	pacote.sequencia = 0;
+
+	if (sendto(sockdescr, &pacote, pacote.tamanho + TAMANHO_HEADER, 0, (struct sockaddr *)&sa, sizeof sa) != (pacote.tamanho + TAMANHO_HEADER))
+	{
+		puts("Nao consegui mandar os dados");
+		exit(1);
+	}
+
 	while (1)
 	{
 
@@ -91,14 +96,14 @@ int main(int argc, char *argv[])
 			FD_ZERO(&readfds);
 			FD_SET(sockdescr, &readfds);
 
-			timeout.tv_sec = 5;	 // Defina o timeout em segundos
-			timeout.tv_usec = 0; // Defina os microssegundos do timeout
-								 // sleep(3);
+			timeout.tv_sec = SEGUNDOS_ESPERA_CLIENTE; // Defina o timeout em segundos
+			timeout.tv_usec = MS_ESPERA_CLIENTE;	  // Defina os microssegundos do timeout
+													  // sleep(3);
+			memset(&pacote, 0, sizeof(pacote));
 			ssize_t bytes_received = recvfrom(sockdescr, &pacote, sizeof(pacote), 0, (struct sockaddr *)&sa, &i);
 			if (bytes_received > 0)
 			{
-				printf("Recebido %s\n", pacote.dados);
-				fwrite(pacote.dados, sizeof(char), bytes_received, arq);
+				fwrite(pacote.dados, sizeof(char), pacote.tamanho, arq);
 				bytes_received = 0;
 			}
 		}

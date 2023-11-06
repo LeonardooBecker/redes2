@@ -19,6 +19,8 @@
 #define MAXHOSTNAME 30
 #define TEMPO 1
 
+#define MAX_SEQUENCIA 1000
+
 int main(int argc, char *argv[])
 {
     int s;
@@ -112,8 +114,14 @@ int main(int argc, char *argv[])
                     isa.sin_family = AF_INET;
                     isa.sin_port = clientes[k].host;
                     isa.sin_addr.s_addr = clientes[k].address;
-                    sendto(s, &pacote, pacote.tamanho, 0, (struct sockaddr *)&isa, i);
+                    sendto(s, &pacote, pacote.tamanho + TAMANHO_HEADER, 0, (struct sockaddr *)&isa, i);
                     clientes[k].parte++;
+                }
+                else
+                {
+                    clientes[k].sequencia_total += clientes[k].parte;
+                    if (clientes[k].sequencia_total <= MAX_SEQUENCIA)
+                        clientes[k].parte = 0;
                 }
             }
         }
@@ -121,20 +129,20 @@ int main(int argc, char *argv[])
         // Caso esteja fora do timeout, ele busca por novas conexões de clientes.
         else
         {
-            if (recvfrom(s, buf, BUFSIZ, 0, (struct sockaddr *)&isa, &i))
+            if (recvfrom(s, &pacote, sizeof(pacote), 0, (struct sockaddr *)&isa, &i))
             {
                 inet_ntop(AF_INET, &(isa.sin_addr), str, i);
                 int host = isa.sin_port;
                 int addrs = inet_addr(str);
                 clientes[id_cliente].host = host;
                 clientes[id_cliente].address = addrs;
-                strcat(clientes[id_cliente].stream_cliente, buf);
+                strcat(clientes[id_cliente].stream_cliente, pacote.dados);
                 clientes[id_cliente].parte = 0;
-                clientes[id_cliente].arquivo_cliente = abre_arquivo_leitura(buf);
+                clientes[id_cliente].sequencia_total = 0;
+                clientes[id_cliente].arquivo_cliente = abre_arquivo_leitura(pacote.dados);
                 id_cliente++;
-
                 printf("Endereço: %s:%d\n", str, host);
-                printf("BUFFER: %s\n", buf);
+                printf("BUFFER: %s\n", pacote.dados);
             }
         }
     }

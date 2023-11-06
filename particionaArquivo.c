@@ -17,8 +17,7 @@ size_t novoRetornaParte(clientes_t cliente, datagramaUDP *pacote)
     fseek(cliente.arquivo_cliente, (cliente.parte * BUFFER_SIZE), SEEK_SET);
     if ((bytes_read = fread(pacote->dados, 1, BUFFER_SIZE, cliente.arquivo_cliente)) > 0)
     {
-        pacote->tamanho = bytes_read + 32;
-        printf("Bytes lidos: %s\n", pacote->dados);
+        pacote->tamanho = bytes_read;
         return bytes_read;
     }
     else
