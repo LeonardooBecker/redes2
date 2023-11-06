@@ -1,15 +1,5 @@
 #include "particionaArquivo.h"
 
-size_t retorna_parte(FILE *arquivo, int parte, unsigned char *buffer)
-{
-    size_t bytes_read;
-    fseek(arquivo, (parte * BUFFER_SIZE), SEEK_SET);
-    if ((bytes_read = fread(buffer, 1, BUFFER_SIZE, arquivo)) > 0)
-        return bytes_read;
-    else
-        return 0;
-}
-
 size_t novoRetornaParte(clientes_t cliente, datagramaUDP *pacote)
 {
     size_t bytes_read;

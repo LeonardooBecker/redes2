@@ -23,7 +23,6 @@ int main(int argc, char *argv[])
 	struct hostent *hp;
 	datagramaUDP pacote;
 	char *host;
-	char *dados;
 
 	unsigned int i;
 
@@ -34,7 +33,6 @@ int main(int argc, char *argv[])
 	}
 
 	host = argv[1];
-	dados = argv[3];
 
 	if ((hp = gethostbyname(host)) == NULL)
 	{
@@ -68,7 +66,7 @@ int main(int argc, char *argv[])
 	timeout.tv_sec = SEGUNDOS_ESPERA_CLIENTE; // Defina o timeout em segundos
 	timeout.tv_usec = MS_ESPERA_CLIENTE;	  // Defina os microssegundos do timeout
 
-	sprintf(pacote.dados, "%s", nome_arquivo);
+	sprintf(pacote.dados, "%s", argv[3]);
 	pacote.tamanho = sizeof(pacote.dados);
 	pacote.sequencia = 0;
 
@@ -80,7 +78,6 @@ int main(int argc, char *argv[])
 
 	while (1)
 	{
-
 		retval = select(sockdescr + 1, &readfds, NULL, NULL, &timeout);
 		if (retval == -1)
 		{

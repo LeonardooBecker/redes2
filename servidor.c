@@ -25,7 +25,6 @@ int main(int argc, char *argv[])
 {
     int s;
     unsigned int i;
-    char buf[BUFSIZ + 1];
     struct sockaddr_in sa, isa; /* sa: servidor, isa: cliente */
     struct hostent *hp;
     char localhost[MAXHOSTNAME];
@@ -80,7 +79,6 @@ int main(int argc, char *argv[])
 
     timeout.tv_sec = SEGUNDOS_ESPERA; // Defina o timeout em segundos
     timeout.tv_usec = MS_ESPERA;      // Defina os microssegundos do timeout
-    // memset(pacote, 0, sizeof(pacote));
 
     while (1)
     {
