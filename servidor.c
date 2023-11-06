@@ -21,15 +21,69 @@
 
 #define MAX_SEQUENCIA 1000
 
+void buscaConexao(clientes_t *clientes, int *id_cliente, int socket)
+{
+    datagramaUDP pacote;
+    struct sockaddr_in isa;
+    unsigned int i = sizeof(isa);
+    char str[sizeof(isa)];
+    if (recvfrom(socket, &pacote, sizeof(pacote), 0, (struct sockaddr *)&isa, &i))
+    {
+        printf("BUFFER: %s\n", pacote.dados);
+        inet_ntop(AF_INET, &(isa.sin_addr), str, i);
+        int host = isa.sin_port;
+        int addrs = inet_addr(str);
+        clientes[(*id_cliente)].host = host;
+        clientes[(*id_cliente)].address = addrs;
+        strcat(clientes[(*id_cliente)].stream_cliente, pacote.dados);
+        clientes[(*id_cliente)].parte = 0;
+        clientes[(*id_cliente)].sequencia_total = 0;
+        clientes[(*id_cliente)].arquivo_cliente = abre_arquivo_leitura(pacote.dados);
+        (*id_cliente)++;
+        printf("Endereço: %s:%d\n", str, host);
+    }
+}
+
+void enviaPacotes(clientes_t *clientes, int id_cliente, int s)
+{
+    datagramaUDP pacote;
+    struct sockaddr_in isa;
+    unsigned int i = sizeof(isa);
+    for (int k = 0; k < id_cliente; k++)
+    {
+        if (retornaFragmento(clientes[k], &pacote) > 0)
+        {
+            printf("Enviando parte %d\n", clientes[k].parte);
+            isa.sin_family = AF_INET;
+            isa.sin_port = clientes[k].host;
+            isa.sin_addr.s_addr = clientes[k].address;
+            sendto(s, &pacote, pacote.tamanho + TAMANHO_HEADER, 0, (struct sockaddr *)&isa, i);
+            clientes[k].parte++;
+        }
+        else
+        {
+            clientes[k].sequencia_total += clientes[k].parte;
+            if (clientes[k].sequencia_total <= MAX_SEQUENCIA)
+                clientes[k].parte = 0;
+        }
+    }
+}
+
+void resetaTimeout(struct timeval *timeout, fd_set *readfds, int s)
+{
+    FD_ZERO(readfds);
+    FD_SET(s, readfds);
+    (*timeout).tv_sec = SEGUNDOS_ESPERA; // Defina o timeout em segundos
+    (*timeout).tv_usec = MS_ESPERA;      // Defina os microssegundos do timeout
+}
+
 int main(int argc, char *argv[])
 {
     int s;
-    unsigned int i;
-    struct sockaddr_in sa, isa; /* sa: servidor, isa: cliente */
+    struct sockaddr_in sa; /* sa: servidor, isa: cliente */
     struct hostent *hp;
     char localhost[MAXHOSTNAME];
     clientes_t clientes[MAX_CLIENTES];
-    datagramaUDP pacote;
     int id_cliente = 0;
 
     if (argc != 2)
@@ -66,24 +120,14 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    char str[sizeof(isa)];
-
     fd_set readfds;
     struct timeval timeout;
     int retval;
 
-    i = sizeof(sa);
-
-    FD_ZERO(&readfds);
-    FD_SET(s, &readfds);
-
-    timeout.tv_sec = SEGUNDOS_ESPERA; // Defina o timeout em segundos
-    timeout.tv_usec = MS_ESPERA;      // Defina os microssegundos do timeout
+    resetaTimeout(&timeout, &readfds, s);
 
     while (1)
     {
-        i = sizeof(isa);
-
         // puts("Vou bloquear esperando mensagem.");
 
         retval = select(s + 1, &readfds, NULL, NULL, &timeout);
@@ -98,50 +142,14 @@ int main(int argc, char *argv[])
         else if (retval == 0)
         {
             // printf("Timeout! Nenhum dado recebido.\n");
-
-            FD_ZERO(&readfds);
-            FD_SET(s, &readfds);
-            timeout.tv_sec = SEGUNDOS_ESPERA; // Defina o timeout em segundos
-            timeout.tv_usec = MS_ESPERA;      // Defina os microssegundos do timeout
-
-            for (int k = 0; k < id_cliente; k++)
-            {
-                if (novoRetornaParte(clientes[k], &pacote) > 0)
-                {
-                    printf("Enviando parte %d\n", clientes[k].parte);
-                    isa.sin_family = AF_INET;
-                    isa.sin_port = clientes[k].host;
-                    isa.sin_addr.s_addr = clientes[k].address;
-                    sendto(s, &pacote, pacote.tamanho + TAMANHO_HEADER, 0, (struct sockaddr *)&isa, i);
-                    clientes[k].parte++;
-                }
-                else
-                {
-                    clientes[k].sequencia_total += clientes[k].parte;
-                    if (clientes[k].sequencia_total <= MAX_SEQUENCIA)
-                        clientes[k].parte = 0;
-                }
-            }
+            resetaTimeout(&timeout, &readfds, s);
+            enviaPacotes(clientes, id_cliente, s);
         }
 
         // Caso esteja fora do timeout, ele busca por novas conexões de clientes.
         else
         {
-            if (recvfrom(s, &pacote, sizeof(pacote), 0, (struct sockaddr *)&isa, &i))
-            {
-                inet_ntop(AF_INET, &(isa.sin_addr), str, i);
-                int host = isa.sin_port;
-                int addrs = inet_addr(str);
-                clientes[id_cliente].host = host;
-                clientes[id_cliente].address = addrs;
-                strcat(clientes[id_cliente].stream_cliente, pacote.dados);
-                clientes[id_cliente].parte = 0;
-                clientes[id_cliente].sequencia_total = 0;
-                clientes[id_cliente].arquivo_cliente = abre_arquivo_leitura(pacote.dados);
-                id_cliente++;
-                printf("Endereço: %s:%d\n", str, host);
-                printf("BUFFER: %s\n", pacote.dados);
-            }
+            buscaConexao(clientes, &id_cliente, s);
         }
     }
 }

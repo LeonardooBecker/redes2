@@ -6,7 +6,7 @@
 #include <string.h>
 #include "constantes.h"
 
-size_t novoRetornaParte(clientes_t cliente, datagramaUDP *pacote);
+size_t retornaFragmento(clientes_t cliente, datagramaUDP *pacote);
 
 FILE *abre_arquivo_leitura(const char *nome_arquivo);
 

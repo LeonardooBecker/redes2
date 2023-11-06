@@ -1,6 +1,8 @@
 #include "particionaArquivo.h"
 
-size_t novoRetornaParte(clientes_t cliente, datagramaUDP *pacote)
+// Como a mensagem tem um tamanho superior ao do buffer, é necessário particiona-la em diversos pacotes.
+// A função é responsável por retornar o pacote de acordo com a sequência registrada no servidor.
+size_t retornaFragmento(clientes_t cliente, datagramaUDP *pacote)
 {
     size_t bytes_read;
     memset(pacote->dados, 0, BUFFER_SIZE);
