@@ -17,6 +17,10 @@
 
 void resetaTimeoutCliente(struct timeval *timeout, fd_set *readfds, int s);
 
-void recebeDados(int sock, FILE *arq);
+void recebeDados(int sock, FILE *arq, desempenho_t *desempenho);
+
+desempenho_t *inicializa_desempenho();
+
+void imprime_log(desempenho_t *desempenho);
 
 #endif

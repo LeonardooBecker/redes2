@@ -1,0 +1,19 @@
+Iniciei a lista que pode ter no máximo 5 clientes
+Inseri cliente de host 32454 na lista
+Cliente de host = 32454 - Roteiro desejado: fellowship.txt
+Veja a Lista: [ 32454 ]
+Inseri cliente de host 50384 na lista
+Cliente de host = 50384 - Roteiro desejado: shrek3.txt
+Veja a Lista: [ 32454 50384 ]
+Inseri cliente de host 25560 na lista
+Cliente de host = 25560 - Roteiro desejado: buckaroo.txt
+Veja a Lista: [ 32454 50384 25560 ]
+Todos os pacotes do cliente 32454 foram enviados!
+Removi cliente  de host = 32454 da posicao 0 da Lista
+Veja a Lista: [ 50384 25560 ]
+Todos os pacotes do cliente 50384 foram enviados!
+Removi cliente  de host = 50384 da posicao 0 da Lista
+Veja a Lista: [ 25560 ]
+Todos os pacotes do cliente 25560 foram enviados!
+Removi cliente de host = 25560 da posicao 0 da Lista
+A lista esta vazia

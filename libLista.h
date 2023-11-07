@@ -1,9 +1,10 @@
 #ifndef _LIBlista_t_H
 #define _LIBlista_t_H
+#include "constantes.h"
 
 struct nodo_l
 {
-    int elemento;        /* lista de numeros inteiros */
+    clientes_t *cliente; /* lista composta por elementos do tipo clientes_t */
     struct nodo_l *prox; /* ponteiro para o proximo   */
 };
 typedef struct nodo_l nodo_l_t;
@@ -36,46 +37,17 @@ int lista_vazia(lista_t *l);
 int lista_tamanho(lista_t *l);
 
 /*
- * Insere o elemento no inicio da lista.
- * Retorna 1 se a operacao foi bem sucedida e 0 caso contrario.
- */
-int lista_insere_inicio(lista_t *l, int elemento);
-
-/*
  * Insere o elemento no final da lista.
  * Retorna 1 se a operacao foi bem sucedida e 0 caso contrario.
  */
-int lista_insere_fim(lista_t *l, int elemento);
-
-/*
- * Insere o elemento na lista garantindo ordenacao em ordem crescente.
- * Retorna 1 se a operacao foi bem sucedida e 0 caso contrario.
- */
-int lista_insere_ordenado(lista_t *l, int elemento);
-
-/*
- * Remove o elemento do inicio da lista e o retorna em 'elemento'.
- * Retorna 1 se a operacao foi bem sucedida e 0 caso contrario.
- */
-int lista_retira_inicio(lista_t *l, int *elemento);
-
-/*
- * Remove o elemento do final da lista e o retorna em 'elemento'.
- * Retorna 1 se a operacao foi bem sucedida e 0 caso contrario.
- */
-int lista_retira_fim(lista_t *l, int *elemento);
+int lista_insere_fim(lista_t *l, clientes_t *cliente);
 
 /*
  * Remove o elemento 'elemento' caso ele exista na lista.
  * Retorna 1 se a operacao foi bem sucedida e 0 caso contrario.
  * Se o elemento nao for encontrado na lista tambem retorna 0.
  */
-int lista_retira_elemento(lista_t *l, int *elemento);
-
-/*
- * Retorna 1 se o elemento existe na lista e 0 caso contrario.
- */
-int lista_pertence(lista_t *l, int elemento);
+int lista_retira_cliente(lista_t *l, clientes_t *cliente);
 
 /*
  * Imprime a lista, do inicio ate o fim, este por ultimo, sem espaco no final.
@@ -84,5 +56,16 @@ int lista_pertence(lista_t *l, int elemento);
  * Normalmente ela nao existe nas implementacoes de um TAD lista.
  */
 void lista_imprime(lista_t *l);
+
+/*
+ * Retorna o endereco do proximo nodo caso ele exista na lista.
+ * Caso contrario, retorna NULL.
+*/
+nodo_l_t *percorre_lista(lista_t *lista, nodo_l_t *nodo);
+
+/*
+* Retorna o endereço do primeiro nodo pertencente a lista
+*/
+nodo_l_t *lista_retorna_inicio(lista_t *lista);
 
 #endif

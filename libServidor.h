@@ -16,10 +16,14 @@
 #include "particionaArquivo.h"
 #include "libLista.h"
 
-void buscaConexao(clientes_t *clientes, int *id_cliente, int socket, lista_t *lista);
+clientes_t *novo_cliente();
 
-void enviaPacotes(clientes_t *clientes, int id_cliente, int s, lista_t *lista);
+void buscaConexao(int socket, lista_t *lista);
 
-void resetaTimeoutServidor(struct timeval *timeout, fd_set *readfds, int s);
+void enviaPacotes(int socket, lista_t *lista);
+
+void resetaTimeoutServidor(struct timeval *timeout, fd_set *readfds, int s, int intervalo_pacotes);
+
+void confereInatividade(lista_t *lista, int *qnt_tentativas, int encerra_servidor);
 
 #endif

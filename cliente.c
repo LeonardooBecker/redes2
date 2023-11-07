@@ -22,6 +22,7 @@ int main(int argc, char *argv[])
 	struct sockaddr_in sa;
 	struct hostent *hp;
 	datagramaUDP pacote;
+	desempenho_t *desempenho = inicializa_desempenho();
 	char *host;
 	fd_set readfds;
 	struct timeval timeout;
@@ -36,21 +37,23 @@ int main(int argc, char *argv[])
 
 	host = argv[1];
 
+	// Obtem o endereço IP do servidor
 	if ((hp = gethostbyname(host)) == NULL)
 	{
 		puts("Nao consegui obter endereco IP do servidor.");
 		exit(1);
 	}
 
-	sa.sin_addr = *(struct in_addr *)hp->h_addr;
-	sa.sin_family = hp->h_addrtype;
-	sa.sin_port = htons(atoi(argv[2]));
-
+	// Realiza a criação do socket
 	if ((sock = socket(hp->h_addrtype, SOCK_DGRAM, 0)) < 0)
 	{
 		puts("Nao consegui abrir o socket.");
 		exit(1);
 	}
+
+	sa.sin_addr = *(struct in_addr *)hp->h_addr;
+	sa.sin_family = hp->h_addrtype;
+	sa.sin_port = htons(atoi(argv[2]));
 
 	// Formata o nome do arquivo de retorno e abre o arquivo para escrita
 	sprintf(arquivo_retorno, "retorno_%s", argv[3]);
@@ -73,7 +76,7 @@ int main(int argc, char *argv[])
 	// Enquanto não receber o timeout para encerramento, recebe os pacotes enviados pelo servidor
 	while (1)
 	{
-		//
+		// Responsável por verificar a variação do tempo de timeout
 		retval = select(sock + 1, &readfds, NULL, NULL, &timeout);
 
 		// Caso haja algum erro na função select
@@ -85,8 +88,9 @@ int main(int argc, char *argv[])
 		// Assim que o cliente receber todos os pacotes do servidor ele encerra a conexão
 		else if (retval == 0)
 		{
-			printf("Timeout! Nenhum dado recebido.\n");
-			printf("Encerrando conexão...\n");
+			fprintf(stderr,"Timeout! Nenhum dado recebido.\n");
+			fprintf(stderr,"Encerrando conexão...\n");
+			imprime_log(desempenho);
 			break;
 		}
 
@@ -95,7 +99,7 @@ int main(int argc, char *argv[])
 		{
 			// Enquanto esta recebendo pacote, não temos interesse em timeout.
 			resetaTimeoutCliente(&timeout, &readfds, sock);
-			recebeDados(sock, arq);
+			recebeDados(sock, arq, desempenho);
 		}
 	}
 
