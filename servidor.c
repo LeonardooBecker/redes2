@@ -15,10 +15,11 @@
 #include "constantes.h"
 #include "particionaArquivo.h"
 #include "libServidor.h"
+#include "libLista.h"
 
 int main(int argc, char *argv[])
 {
-    int s;
+    int sock;
     struct sockaddr_in sa; /* sa: servidor */
     struct hostent *hp;
     char localhost[MAXHOSTNAME];
@@ -27,6 +28,7 @@ int main(int argc, char *argv[])
     struct timeval timeout;
     int retval;
     int id_cliente = 0;
+    lista_t *lista = lista_cria();
 
     if (argc != 2)
     {
@@ -42,31 +44,30 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-
     // printf("Sou o Servidor\nNome: %s, Porta: %d\n", localhost, atoi(argv[1]));
 
     sa.sin_addr.s_addr = htonl(INADDR_ANY);
     sa.sin_port = htons(atoi(argv[1]));
     sa.sin_family = hp->h_addrtype;
 
-    if ((s = socket(hp->h_addrtype, SOCK_DGRAM, 0)) < 0)
+    if ((sock = socket(hp->h_addrtype, SOCK_DGRAM, 0)) < 0)
     {
         puts("Nao consegui abrir o socket");
         exit(1);
     }
 
-    if (bind(s, (struct sockaddr *)&sa, sizeof(sa)) < 0)
+    if (bind(sock, (struct sockaddr *)&sa, sizeof(sa)) < 0)
     {
         puts("Nao consegui fazer o bind");
         exit(1);
     }
 
-    resetaTimeoutServidor(&timeout, &readfds, s);
+    resetaTimeoutServidor(&timeout, &readfds, sock);
 
     // Laço principal de execução, servidor fica em loop infinito no processo de buscar novas conexões e enviar os pacotes das já existentes
     while (1)
     {
-        retval = select(s + 1, &readfds, NULL, NULL, &timeout);
+        retval = select(sock + 1, &readfds, NULL, NULL, &timeout);
 
         // Caso haja algum erro na função select
         if (retval == -1)
@@ -77,14 +78,15 @@ int main(int argc, char *argv[])
         // Seria o caso do timeout, mas como não estamos trabalhando com timeout no servidor, em todos os momentos de "timeout" ele envia o pacote para o cliente
         else if (retval == 0)
         {
-            resetaTimeoutServidor(&timeout, &readfds, s);
-            enviaPacotes(clientes, id_cliente, s);
+            resetaTimeoutServidor(&timeout, &readfds, sock);
+            enviaPacotes(clientes, id_cliente, sock, lista);
         }
 
         // Caso esteja fora do timeout, ele busca por novas conexões de clientes.
         else
         {
-            buscaConexao(clientes, &id_cliente, s);
+            buscaConexao(clientes, &id_cliente, sock, lista);
+            lista_imprime(lista);
         }
     }
 }

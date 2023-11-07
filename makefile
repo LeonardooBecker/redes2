@@ -1,5 +1,5 @@
 FLAGS = -Wall
-OBJS = particionaArquivo.o libCliente.o libServidor.o
+OBJS = particionaArquivo.o libCliente.o libServidor.o libLista.o
 
 all: cliente servidor
 
@@ -17,6 +17,9 @@ libCliente.o: libCliente.c
 
 libServidor.o: libServidor.c
 	gcc -c libServidor.c $(FLAGS)
+
+libLista.o: libLista.c
+	gcc -c libLista.c $(FLAGS)
 
 servidor.o: servidor.c 
 	gcc -c servidor.c $(FLAGS)

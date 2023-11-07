@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
 	// Enquanto não receber o timeout para encerramento, recebe os pacotes enviados pelo servidor
 	while (1)
 	{
-		// 
+		//
 		retval = select(sock + 1, &readfds, NULL, NULL, &timeout);
 
 		// Caso haja algum erro na função select

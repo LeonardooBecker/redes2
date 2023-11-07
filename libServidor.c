@@ -1,8 +1,7 @@
 #include "libServidor.h"
 
-
 // Função responsável por buscar as conexões dos clientes
-void buscaConexao(clientes_t *clientes, int *id_cliente, int socket)
+void buscaConexao(clientes_t *clientes, int *id_cliente, int socket, lista_t *lista)
 {
     datagramaUDP pacote;
     struct sockaddr_in isa;
@@ -14,11 +13,11 @@ void buscaConexao(clientes_t *clientes, int *id_cliente, int socket)
 
     if (recvfrom(socket, &pacote, sizeof(pacote), 0, (struct sockaddr *)&isa, &i))
     {
-        //Inicializa o primeiro pacote do cliente
+        // Inicializa o primeiro pacote do cliente
         printf("Roteiro desejado: %s\n", pacote.dados);
         clientes[(*id_cliente)].parte = 0;
         clientes[(*id_cliente)].sequencia_total = 0;
-        
+
         // Busca o endereço do cliente ( host e address ) e salva nas respectivas posições da struct
         inet_ntop(AF_INET, &(isa.sin_addr), str, i);
         host = isa.sin_port;
@@ -28,31 +27,54 @@ void buscaConexao(clientes_t *clientes, int *id_cliente, int socket)
 
         // Registra o nome do roteiro que o cliente deseja
         strcat(clientes[(*id_cliente)].stream_cliente, pacote.dados);
-        
+
         // Formatação para acessar a pasta com os roteiros
         strcpy(nome_arquivo, "./roteiros/");
         strcat(nome_arquivo, pacote.dados);
         clientes[(*id_cliente)].arquivo_cliente = abre_arquivo_leitura(nome_arquivo);
-        // printf("Endereço: %s:%d\n", str, host);
+
+        lista_insere_fim(lista, *id_cliente);
         (*id_cliente)++;
+
+        // printf("Endereço: %s:%d\n", str, host);
     }
 }
 
+nodo_l_t *percorre_lista(lista_t *lista, nodo_l_t *nodo)
+{
+    while (nodo != NULL)
+    {
+        return nodo->prox;
+    }
+    return NULL;
+}
+
+nodo_l_t *lista_retorna_inicio(lista_t *lista)
+{
+    if (lista_vazia(lista))
+    {
+        return 0;
+    }
+    else
+        return lista->ini;
+}
 
 // Função responsável por enviar os pacotes para os clientes
-void enviaPacotes(clientes_t *clientes, int id_cliente, int s)
+void enviaPacotes(clientes_t *clientes, int id_cliente, int s, lista_t *lista)
 {
     datagramaUDP pacote;
     struct sockaddr_in isa;
     unsigned int i = sizeof(isa);
-    
+    int k;
+    nodo_l_t *nodo = lista_retorna_inicio(lista);
     // Para cada cliente encontrado pelo servidor, o mesmo percorre enviando os pacotes sequenciais referentes a cada cliente
-    for (int k = 0; k < id_cliente; k++)
+    while (nodo != NULL)
     {
+        k = nodo->elemento;
         // Retorna o pacote referente a parte do arquivo, sequência comandada pelo servidor
         if (retornaFragmento(clientes[k], &pacote) > 0)
         {
-            printf("Enviando parte %d\n", clientes[k].parte);
+            // printf("Enviando parte %d\n", clientes[k].parte);
             // Resgata as informações de host e address do cliente para poder enviar o pacote
             isa.sin_family = AF_INET;
             isa.sin_port = clientes[k].host;
@@ -66,10 +88,17 @@ void enviaPacotes(clientes_t *clientes, int id_cliente, int s)
             clientes[k].sequencia_total += clientes[k].parte;
             if (clientes[k].sequencia_total <= MIN_SEQUENCIA)
                 clientes[k].parte = 0;
+            else
+            {
+                printf("Todos os pacotes do cliente %d foram enviados!\n", k);
+                nodo = percorre_lista(lista, nodo);
+                lista_retira_elemento(lista, &k);
+                lista_imprime(lista);
+            }
         }
+        nodo = percorre_lista(lista, nodo);
     }
 }
-
 
 // Função responsável por resetar o timeout do servidor
 void resetaTimeoutServidor(struct timeval *timeout, fd_set *readfds, int s)

@@ -10,6 +10,7 @@ size_t retornaFragmento(clientes_t cliente, datagramaUDP *pacote)
     if ((bytes_read = fread(pacote->dados, 1, BUFFER_SIZE, cliente.arquivo_cliente)) > 0)
     {
         pacote->tamanho = bytes_read;
+        pacote->sequencia = cliente.parte;
         return bytes_read;
     }
     else

@@ -14,10 +14,11 @@
 #include <time.h>
 #include "constantes.h"
 #include "particionaArquivo.h"
+#include "libLista.h"
 
-void buscaConexao(clientes_t *clientes, int *id_cliente, int socket);
+void buscaConexao(clientes_t *clientes, int *id_cliente, int socket, lista_t *lista);
 
-void enviaPacotes(clientes_t *clientes, int id_cliente, int s);
+void enviaPacotes(clientes_t *clientes, int id_cliente, int s, lista_t *lista);
 
 void resetaTimeoutServidor(struct timeval *timeout, fd_set *readfds, int s);
 
