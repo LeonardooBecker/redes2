@@ -58,6 +58,10 @@
   "C_Cpp_Runner.msvcSecureNoWarnings": false,
   "files.associations": {
     "particionaarquivo.h": "c",
-    "types.h": "c"
+    "types.h": "c",
+    "constantes.h": "c",
+    "unistd.h": "c",
+    "in.h": "c",
+    "inet.h": "c"
   }
 }

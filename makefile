@@ -1,13 +1,5 @@
 FLAGS = -Wall
-OBJS = particionaArquivo.o
-
-# .PHONY: all debug clean purge
-
-# %.o: %.c %.h
-# 	$(CC) $(CFLAGS) -c $< -o $@
-
-# $(PROG): % : $(OBJS) %.o
-# 	$(CC) $(CFLAGS) -o $@ $^ $(LFLAGS)
+OBJS = particionaArquivo.o libCliente.o libServidor.o
 
 all: cliente servidor
 
@@ -19,6 +11,12 @@ servidor: servidor.o $(OBJS)
 
 particionaArquivo.o: particionaArquivo.c
 	gcc -c particionaArquivo.c $(FLAGS)  
+
+libCliente.o: libCliente.c
+	gcc -c libCliente.c $(FLAGS)
+
+libServidor.o: libServidor.c
+	gcc -c libServidor.c $(FLAGS)
 
 servidor.o: servidor.c 
 	gcc -c servidor.c $(FLAGS)
