@@ -81,7 +81,7 @@ void enviaPacotes(int socket, lista_t *lista)
         }
         else
         {
-            // Caso tenha chegado ao fim, ele retorna para o inicio enquanto possuir menos envios de pacote que a MAX_SEQUENCIA
+            // Caso tenha chegado ao fim, ele retorna para o inicio enquanto possuir menos envios de pacote que a MIN_SEQUENCIA
             cliente->sequencia_total += cliente->parte;
             if (cliente->sequencia_total <= MIN_SEQUENCIA)
                 cliente->parte = 0;
