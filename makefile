@@ -11,7 +11,7 @@ servidor: servidor.o $(OBJS)
 
 particionaArquivo.o: particionaArquivo.c
 	gcc -c particionaArquivo.c $(FLAGS)  
-
+	
 libCliente.o: libCliente.c
 	gcc -c libCliente.c $(FLAGS)
 

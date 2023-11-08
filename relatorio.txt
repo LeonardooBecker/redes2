@@ -1,3 +1,9 @@
+O presente trabalho tem como objetivo simular um serviço de streaming, entre um servidor e diversos clientes que, paralelamente, solicitam um conteúdo ao servidor - no nosso caso, roteiros de filme em arquivo txt - que são então enviados para cada cliente separadamente.
+Inicialmente, buscamos estabelecer a conexão entre o cliente e o servidor enviando dados genéricos, sem se preocupar com pacotes ou estruturas de dados. Após isso, decidimos então que enviaríamos roteiros de filmes em .txt.
+Para lidar com diversos clientes ao mesmo tempo, solicitando arquivos diferentes ao mesmo tempo em que arquivos são enviados para outros clientes,  foi utilizado a estrutura de dados cliente_t, que contém todas as informações necessárias para realizar a conexão entre servidor 
+e cliente, e enviar o dado desejado nos pacotes em ordem. Para lidar com a simultaneidade de enviar pacotes diferentes para clientes diferentes, já que os pacotes podem ser de tamanhos diferentes também, ou seja, o primeiro cliente a solicitar um conteúdo não necessariamente vai ser
+o primeiro a ter a transmissão encerrado, utilizamos a estrutura de lista, onde cada nodo da lista é representado por uma estrutura cliente_t. Assim, na lista conseguimos adicionar e remover os clientes conforme os pacotes vão terminando de ser enviados.  
+
 primeiro foi visado estabelecer a conexao entre o cliente e servidor de dados genéricos, sem se preocpar com pacotes ou estruturas de dado
 Já nesse ponto decidimos a natureza do nosso stream - roteiros de filmes em txt.
 em seguida foi proposto a aceitação de multiplos clientes por parte do servidor,
