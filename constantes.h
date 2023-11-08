@@ -17,7 +17,6 @@
 
 #define TAMANHO_LISTA 5
 
-
 // Estrutura de dados utilizada para o envio de pacotes entre cliente e servidor
 typedef struct datagrama
 {
@@ -38,7 +37,6 @@ typedef struct clientes
     int sequencia_total;
 } clientes_t;
 
-
 // Estrutura de dados para armazenar os dados de desempenho no recebimento de pacotes pelo cliente
 typedef struct desempenho
 {
@@ -50,6 +48,6 @@ typedef struct desempenho
     int repeticoes_roterio;
     int possivel_total;
 
-}desempenho_t;
+} desempenho_t;
 
 #endif
