@@ -17,6 +17,8 @@
 
 #define TAMANHO_LISTA 5
 
+
+// Estrutura de dados utilizada para o envio de pacotes entre cliente e servidor
 typedef struct datagrama
 {
     unsigned int tamanho : 16;
@@ -24,6 +26,7 @@ typedef struct datagrama
     char dados[BUFFER_SIZE];
 } datagramaUDP;
 
+// Estrutura de dados para armazenar os dados de cada cliente conectado ao servidor
 typedef struct clientes
 {
     char stream_cliente[BUFFER_SIZE];
@@ -35,6 +38,8 @@ typedef struct clientes
     int sequencia_total;
 } clientes_t;
 
+
+// Estrutura de dados para armazenar os dados de desempenho no recebimento de pacotes pelo cliente
 typedef struct desempenho
 {
     int sequencia_anterior;

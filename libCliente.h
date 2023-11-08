@@ -15,12 +15,17 @@
 #include "constantes.h"
 #include "particionaArquivo.h"
 
+
+// Função responsável por redefinir o tempo de timeout do cliente
 void resetaTimeoutCliente(struct timeval *timeout, fd_set *readfds, int s);
 
+// Função responsável por receber os dados enviados pelo servidor, e escrever no arquivo de retorno assim como registrar os dados adicionais
 void recebeDados(int sock, FILE *arq, desempenho_t *desempenho);
 
+// Função responsável por inicializar a estrutura de desempenho
 desempenho_t *inicializa_desempenho();
 
+// Função responsável por imprimir os dados de desempenho gerados pelo cliente
 void imprime_log(desempenho_t *desempenho);
 
 #endif
