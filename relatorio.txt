@@ -1,0 +1,8 @@
+primeiro foi visado estabelecer a conexao entre o cliente e servidor de dados genéricos, sem se preocpar com pacotes ou estruturas de dado
+Já nesse ponto decidimos a natureza do nosso stream - roteiros de filmes em txt.
+em seguida foi proposto a aceitação de multiplos clientes por parte do servidor,
+para que isso fosse possível se fez necessário as primeiras estruturas de dados, sendo elas o cliente, onde quarda as informações de endereço, host e stream do cliente, entre outros.
+A outro estrutura de dados foi a lista, dado que não necessáriamente o primeiro cliente a solicitar os pacotes vai ser o primeiro ou último a deixar de receber, dado essa aleatoriadade,
+a estrutura de lista se fez necessário para poder remover elementos especificos e inserir ( no caso do nosso trabalho sem ao final ).
+Após isso foi necessário organizar os dados enviados, para que fosse possível fazer a validação da conexão, com isso foi proposto o pacote xxxxxx.
+Dados essa sequência, foi tratado os resultados obtidos por parte de servidor e cliente para que fosse imprimido em formato de log para visualização direta.
